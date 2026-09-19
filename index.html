@@ -47,6 +47,7 @@
 @media(max-width:480px){h2{font-size:32px}.hero{padding-top:300px}.scene{height:320px}.hero-photo{object-position:85% center}.notice-stack{left:12%;top:110px;width:134px}.copy h1{font-size:36px}.actions{display:grid}.actions .pill{width:100%}.pain-grid{grid-template-columns:1fr}.pain,.phase,.brain-card,.rest-card,.return-card,.decision>div{padding:24px}.industry-card span{font-size:16px}.industry-photo{width:48px;height:48px;flex-basis:48px}.overload,.system-proof{padding-top:240px}.overload:before,.system-proof:before{height:260px}.industries h2{font-size:24px}.offer-items li{grid-template-columns:14px 1fr;gap:8px}.offer-items b{grid-column:2}.offer-price{font-size:44px}.offer-installment{display:block;margin:8px 0}.brain-logo{padding:12px 8px;font-size:12px}.brain-logo img{width:30px;height:30px}.compare th,.compare td{padding:10px 6px;font-size:12px;overflow-wrap:anywhere}.launch-tab{flex-basis:42%}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 
+.lead-dialog{width:min(calc(100% - 32px),540px);padding:0;border:0;border-radius:18px;background:var(--paper);color:var(--ink);box-shadow:0 24px 80px #0008}.lead-dialog::backdrop{background:#111a;backdrop-filter:blur(5px)}.lead-card{position:relative;padding:40px}.lead-close{position:absolute;right:16px;top:16px;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);font-size:24px;line-height:1}.lead-card h2{font-size:32px;max-width:400px;margin-bottom:12px}.lead-card>p{color:var(--muted);margin-bottom:24px}.lead-form{display:grid;gap:16px}.lead-form label{display:grid;gap:7px;font-size:13px;font-weight:700}.lead-form input{width:100%;min-height:50px;padding:12px 14px;border:1px solid #bdc2b5;border-radius:8px;background:#fff;color:var(--ink);outline:0}.lead-form input:focus{border-color:var(--green);box-shadow:0 0 0 3px #50633325}.lead-form .pill{width:100%;margin-top:4px}.lead-privacy,.lead-status{font-size:12px;line-height:1.55;color:var(--muted);margin:0}.lead-status[hidden]{display:none}.lead-status{padding:10px 12px;border-radius:8px;background:#e5eadc;color:var(--green);font-weight:700}@media(max-width:480px){.lead-card{padding:32px 20px}.lead-card h2{font-size:28px}}
   </style>
 </head>
 <body>
@@ -176,6 +177,22 @@
 <section class="rest dark"><div class="section-wrap centered"><p class="section-kicker">O PRÓXIMO PASSO</p><h2>Que rotina você quer construir a partir de agora?</h2><div class="decision"><div><h3>Cenário A · O velho modo</h3><p>Continuar apagando incêndios, colando contexto todos os dias e trabalhando até as 22h.</p></div><div><h3>Cenário B · Empresa Sem Esforço</h3><p>Contexto organizado, agentes cuidando das tarefas recorrentes e você acompanhando a qualidade e as decisões.</p></div></div><div class="closing-cta"><a class="pill primary" href="#oferta">Conhecer o plano Fundador Anual →</a></div></div></section>
 </main>
 <footer class="site-footer">Empresa Sem Esforço · Otear OS<br>Uma iniciativa da O Tear.</footer>
+<dialog class="lead-dialog" id="lead-dialog" aria-labelledby="lead-title">
+  <div class="lead-card">
+    <button class="lead-close" type="button" aria-label="Fechar formulário">×</button>
+    <p class="section-kicker">PRÓXIMO PASSO</p>
+    <h2 id="lead-title">Reserve sua vaga no plano Fundador.</h2>
+    <p>Deixe seus dados para receber as próximas instruções de inscrição.</p>
+    <form class="lead-form" id="lead-form">
+      <label for="lead-name">Nome completo<input id="lead-name" name="name" type="text" autocomplete="name" required></label>
+      <label for="lead-email">Melhor e-mail<input id="lead-email" name="email" type="email" autocomplete="email" required></label>
+      <label for="lead-whatsapp">WhatsApp com DDD<input id="lead-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" minlength="10" required></label>
+      <button class="pill primary" type="submit">Quero receber as instruções →</button>
+      <p class="lead-status" id="lead-status" role="status" hidden></p>
+      <p class="lead-privacy">Ao enviar, você concorda em receber o contato da Empresa Sem Esforço sobre esta inscrição.</p>
+    </form>
+  </div>
+</dialog>
 <script>
 
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -220,7 +237,19 @@ simButton.addEventListener('click',()=>{
  const steps=['Contexto: oferta, público e regras da empresa organizados.','Squads: especialistas selecionados para a tarefa.','Produção: rascunho da entrega preparado.','Revisão: entrega aguardando sua aprovação.'];
  steps.forEach((step,i)=>setTimeout(()=>{const item=document.createElement('li');item.textContent=step;simLog.append(item);if(i===steps.length-1){simButton.disabled=false;simButton.textContent='Repetir demonstração';simStatus.textContent='Pronto para sua revisão'}},motion.matches?0:i*850));
 });
-document.querySelector('#offer-interest').addEventListener('click',event=>{document.querySelector('#checkout-note').hidden=false;event.currentTarget.setAttribute('aria-expanded','true')});
+const leadDialog=document.querySelector('#lead-dialog'),leadForm=document.querySelector('#lead-form'),leadStatus=document.querySelector('#lead-status'),leadOpen=document.querySelector('#offer-interest'),leadClose=document.querySelector('.lead-close');
+leadOpen.setAttribute('aria-haspopup','dialog');leadOpen.setAttribute('aria-controls','lead-dialog');leadOpen.removeAttribute('aria-expanded');
+leadOpen.addEventListener('click',()=>leadDialog.showModal());
+leadClose.addEventListener('click',()=>leadDialog.close());
+leadDialog.addEventListener('click',event=>{if(event.target===leadDialog)leadDialog.close()});
+leadForm.addEventListener('submit',event=>{
+ event.preventDefault();
+ if(!leadForm.reportValidity())return;
+ const lead=Object.fromEntries(new FormData(leadForm).entries());
+ window.dispatchEvent(new CustomEvent('empresa-sem-esforco:lead',{detail:lead}));
+ leadStatus.hidden=false;
+ leadStatus.textContent='Dados recebidos no formulário. Conecte este evento a um CRM ou webhook para centralizar os contatos.';
+});
 if(!motion.matches&&'IntersectionObserver'in window){
  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}}),{threshold:0,rootMargin:'0px 0px -30px 0px'});
  document.querySelectorAll('.brain-card,.pain,.phase,.rest-card,.routine-row,.return-card,.offer,.decision>div').forEach(el=>{el.classList.add('reveal');observer.observe(el)});
